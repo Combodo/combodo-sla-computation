@@ -431,7 +431,7 @@ class EnhancedSLAComputation extends SLAComputationAddOnAPI
 	}
 }
 
-define('COVERAGE_TIME_REGEXP', '^[0-2][0-9]:[0-5][0-9]$');
+define('COVERAGE_TIME_REGEXP', '^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$|^24:00$');
 
 /**
  * Open hours definition: start time and end time for each day of the week
@@ -508,11 +508,20 @@ class CoverageWindow extends cmdbAbstractObject
 				{
 					$iHour = floor($fTime);
 					$iMin = floor(60 * ($fTime - $iHour));
-					$oDummy = new DateTime();
-					$oDummy->setTime($iHour, $iMin, 0);
-					$sValue = $oDummy->format('H:i');
-					$this->Set($sAttCode, $sValue); // so that it gets recorded
+					if ($iHour > 23)
+					{
+						$sValue = '24:00';
+					}
+					else
+					{
+						$sValue = sprintf('%02d:%02d', $iHour, $iMin);
+					}
 				}
+				else
+				{
+					$sValue = '00:00';
+				}
+				$this->Set($sAttCode, $sValue); // so that it gets recorded
 			}
 		}
 		return $sValue;
