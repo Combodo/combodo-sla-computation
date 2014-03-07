@@ -16,7 +16,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'combodo-sla-computation/2.0.0',
+	'combodo-sla-computation/2.0.1',
 	array(
 		// Identification
 		//

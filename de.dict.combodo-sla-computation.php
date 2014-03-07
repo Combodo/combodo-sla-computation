@@ -27,9 +27,9 @@
 //
 
 Dict::Add('DE DE', 'German', 'Deutsch', array(
-	'Menu:CoverageWindows' => 'Coverage Windows',
-	'Menu:CoverageWindows+' => 'Alle Windows',
-	'Class:CoverageWindow' => 'Coverage Window',
+	'Menu:CoverageWindows' => 'Zeitfenster',
+	'Menu:CoverageWindows+' => 'Alle Zeitfenster',
+	'Class:CoverageWindow' => 'Zeitfenster',
 	'Class:CoverageWindow+' => '',
 	'Class:CoverageWindow/Attribute:name' => 'Name',
 	'Class:CoverageWindow/Attribute:name+' => '',
@@ -83,13 +83,12 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 
 ));
 
-
 Dict::Add('DE DE', 'German', 'Deutsch', array(
 	// Dictionary entries go here
 	'Menu:HolidayCalendars' => 'Feiertagskalender',
 	'Menu:HolidayCalendars+' => 'Alle Feiertagskalender',
 	'Class:HolidayCalendar' => 'Feiertagskalender',
-	'Class:HolidayCalendar+' => 'Eine Gruppe an Feiertagen, zu denen andere Objekte in Bezeihung stehen können',
+	'Class:HolidayCalendar+' => 'Eine Gruppe von Feiertagen, zu denen andere Objekte in Beziehung stehen können',
 	'Class:HolidayCalendar/Attribute:name' => 'Name',
 	'Class:HolidayCalendar/Attribute:holiday_list' => 'Feiertage',
 ));
