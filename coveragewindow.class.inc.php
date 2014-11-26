@@ -9,6 +9,204 @@
  */
 class _CoverageWindow_ extends cmdbAbstractObject
 {
+	protected $aIntervalsPerWeekday; // Local cache to speedup computations
+	
+	public function __construct($aRow = null, $sClassAlias = '', $aAttToLoad = null, $aExtendedDataSpec = null)
+	{
+		parent::__construct($aRow, $sClassAlias, $aAttToLoad, $aExtendedDataSpec);
+		$this->aIntervalsPerWeekday = null;
+	}
+	
+	public function GetBareProperties(WebPage $oPage, $bEditMode = false, $sPrefix, $aExtraParams = array())
+	{
+		$aFieldsMap = parent::GetBareProperties($oPage, $bEditMode, $sPrefix, $aExtraParams);
+		$oPage->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/css/fullcalendar.css?v='.ITOP_BUILD_DATE);
+		$oPage->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/js/fullcalendar.js?v='.ITOP_BUILD_DATE);
+		$oPage->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/js/cwcalendar.js?v='.ITOP_BUILD_DATE);
+		$oPage->add('<div style="text-align:center;">'.Dict::S('Class:CoverageWindow/Attribute:interval_list').'</div>');
+		$oPage->add('<div id="cwcalendar"></div>');
+		
+		$sInitialDate = '2010-11-01'; // it's a Monday
+		$aWeekdaysOffset = array('monday' => 0, 'tuesday' => 1, 'wednesday' => 2, 'thursday' => 3, 'friday' => 4, 'saturday' => 5, 'sunday' => 6);
+		
+		$oIntervalsSet = $this->get('interval_list');
+		$aEvents = array();
+		while($oInterval = $oIntervalsSet->Fetch())
+		{
+			$oDate = new DateTime($sInitialDate);
+			$iOffset = $aWeekdaysOffset[$oInterval->Get('weekday')];
+			if ($iOffset != 0)
+			{
+				$oDate->modify('+'.$iOffset.' day');
+			}
+			
+			$oStart = clone $oDate;
+			preg_match('/^([0-9]+):([0-9]+)$/', $oInterval->Get('start_time'), $aMatches);
+			$oStart->setTime((int)$aMatches[1], (int)$aMatches[2], 0);
+
+			$oEnd = clone $oDate;
+			preg_match('/^([0-9]+):([0-9]+)$/', $oInterval->Get('end_time'), $aMatches);
+			$oEnd->setTime((int)$aMatches[1], (int)$aMatches[2], 0);
+			$aEvents[] = array('id' => $oInterval->GetKey(), 'allDay' => false, 'start' => (int)$oStart->format('U'), 'end' => (int)$oEnd->format('U'));
+		}
+		$aLabels = array(
+			'start' => Dict::S('WorkingHoursInterval:StartTime'),
+			'end' => Dict::S('WorkingHoursInterval:EndTime'),
+			'day_of_the_week' => Dict::S('WorkingHoursInterval:DayOfTheWeek'),
+			'whole_day' => Dict::S('WorkingHoursInterval:WholeDay'),
+			'ok' => Dict::S('UI:Button:Ok'),
+			'cancel' => Dict::S('UI:Button:Cancel'),
+			'remove' => Dict::S('WorkingHoursInterval:RemoveIntervalButton'),
+			'weekdays' => array(
+				Dict::S('DayOfWeek-Sunday'),
+				Dict::S('DayOfWeek-Monday'),
+				Dict::S('DayOfWeek-Tuesday'),
+				Dict::S('DayOfWeek-Wednesday'),
+				Dict::S('DayOfWeek-Thursday'),
+				Dict::S('DayOfWeek-Friday'),
+				Dict::S('DayOfWeek-Saturday')
+			),
+			'dialog_title' => Dict::S('WorkingHoursInterval:DlgTitle')
+		);
+		$sJSLabels = json_encode($aLabels);			
+		$sJSEvents = json_encode($aEvents);
+		$sEditMode = $bEditMode ? 'true' : 'false';
+		$oPage->add_ready_script("$('#cwcalendar').cwcalendar({edit_mode: $sEditMode, initial_date: '$sInitialDate', intervals: $sJSEvents, labels: $sJSLabels});");
+		$oPage->add('<input type="hidden" name="calendar_json_intervals" id="calendar_json_intervals" value="'.htmlentities(trim($sJSEvents, '"\''), ENT_QUOTES, 'UTF-8').'" />');
+		return $aFieldsMap;
+	}
+	
+	public function UpdateObjectFromPostedForm($sFormPrefix = '', $aAttList = null, $sTargetState = '')
+	{
+		$aErrors = parent::UpdateObjectFromPostedForm($sFormPrefix, $aAttList, $sTargetState);
+		
+		// Update the list of (related) intervals from the posted JSON string
+		$aDays = array(
+			0 => 'sunday',
+			1 => 'monday',
+			2 => 'tuesday',
+			3 => 'wednesday',
+			4 => 'thursday',
+			5 => 'friday',
+			6 => 'saturday',
+		);
+		$aIntervals = json_decode(utils::ReadPostedParam('calendar_json_intervals', '{}', 'raw_data'), true);
+		$oSet = $this->Get('interval_list');
+		$aExistingIntervals = array();
+		while($oInterval = $oSet->Fetch())
+		{
+			$aExistingIntervals[$oInterval->GetKey()] = $oInterval;
+		}
+		$aNewIntervals = array();
+		foreach($aIntervals as $aIntervalData)
+		{
+			if (array_key_exists($aIntervalData['id'], $aExistingIntervals))
+			{
+				// Update an existing interval
+				$oInterval = $aExistingIntervals[$aIntervalData['id']];
+			}
+			else
+			{
+				$oInterval = new CoverageWindowInterval();
+			}
+			
+			// Check that the interval is not "upside down"
+			if ((int)$aIntervalData['start'] > (int)$aIntervalData['end'])
+			{
+				// Hmm, let's swap start & end
+				$iEnd = (int)$aIntervalData['start'];
+				$aIntervalData['start'] = (int)$aIntervalData['end'];
+				$aIntervalData['end'] = $iEnd;
+			}
+			
+			$oDate = new DateTime(date('Y-m-d H:i:s', (int)$aIntervalData['start']), new DateTimeZone('UTC'));
+			$oInterval->Set('start_time', $oDate->format('H:i'));
+			$oInterval->Set('weekday', $aDays[(int)$oDate->format('w')]);
+			$oDate = new DateTime(date('Y-m-d H:i:s', (int)$aIntervalData['end']), new DateTimeZone('UTC'));
+			$sEndDate = $oDate->format('H:i');
+			if ($sEndDate == '00:00')
+			{
+				$sEndDate = '24:00';
+			}
+			$oInterval->Set('end_time', $sEndDate);
+			$aNewIntervals[] = $oInterval;
+		}
+			
+		$oNewSet = DBObjectSet::FromArray('CoverageWindowInterval', $this->RemoveOverlappingIntervals($aNewIntervals));
+		$this->Set('interval_list', $oNewSet);
+		
+		return $aErrors;
+	}
+	
+	/**
+	 * Merge overlapping intervals by updating the existing intervals and discarding the uneeded ones
+	 * @param WorkingTimeInterval[] $aIntervals
+	 * @return WorkingTimeInterval[]
+	 */
+	function RemoveOverlappingIntervals($aIntervals)
+	{
+		// Important: sort the intervals on their start date
+		usort($aIntervals, array(__class__, 'SortIntervalOnStartTime'));
+		
+		$aIntervalsPerDay = array();
+		$aResult = array();
+		foreach($aIntervals as $oInterval)
+		{
+			if (!array_key_exists($oInterval->Get('weekday'), $aIntervalsPerDay))
+			{
+				$aIntervalsPerDay[$oInterval->Get('weekday')] = array();
+			}
+			
+			$bOverlap = false;
+			foreach($aIntervalsPerDay[$oInterval->Get('weekday')] as $oPrevInterval)
+			{
+				if ( (($oInterval->Get('start_time') > $oPrevInterval->Get('start_time')) && ($oInterval->Get('start_time') < $oPrevInterval->Get('end_time'))) ||
+					 (($oInterval->Get('end_time') > $oPrevInterval->Get('start_time')) && ($oInterval->Get('end_time') < $oPrevInterval->Get('end_time'))) )
+				{
+					// The intervals do overlap.
+					// Let's merge the two intervals into the already existing 'prev' one instead of adding an extra interval
+					if ($oInterval->Get('start_time') < $oPrevInterval->Get('start_time'))
+					{
+						// Retain the smaller start time
+						$oPrevInterval->Set('start_time', $oInterval->Get('start_time'));
+					}
+					if ($oInterval->Get('end_time') > $oPrevInterval->Get('end_time'))
+					{
+						// Retain the bigger end time
+						$oPrevInterval->Set('end_time', $oInterval->Get('end_time'));
+					}
+					$bOverlap = true;
+					// No other collision is possible since the intervals are sorted on their start time
+					// So let's break here
+					break;
+				}
+			}
+			
+			if (!$bOverlap)
+			{
+				// No overlap, let's add this interval to the list
+				$aIntervalsPerDay[$oInterval->Get('weekday')][] = $oInterval;
+			}
+		}
+		
+		// Put back the results in one flat array (not per weekday)
+		$aResult = array();
+		foreach($aIntervalsPerDay as $weekday => $aDaysIntervals)
+		{
+			foreach($aDaysIntervals as $oInterval)
+			{
+				$aResult[] = $oInterval;
+			}
+		}
+		
+		return $aResult;
+	}
+
+	static function SortIntervalOnStartTime(CoverageWindowInterval $oInterval1, CoverageWindowInterval $oInterval2)
+	{
+		return ($oInterval1->Get('start_time') > $oInterval2->Get('start_time')) ? +1 : -1;
+	}
+	
 	/**
 	 * Convert the old format (decimal) to the new mandatory format NN:NN	
 	 */
@@ -54,6 +252,16 @@ class _CoverageWindow_ extends cmdbAbstractObject
 	public function GetAsDecimal($sAttCode)
 	{
 		$sTime = $this->Get($sAttCode);
+		return self::ToDecimal($sTime);
+	}
+	
+	/**
+	 * Convert an hour (as a string) in format hh:ss into a decimal hour (as a float)
+	 * @param unknown $sTime
+	 * @return number
+	 */
+	static public function ToDecimal($sTime)
+	{
 		$iHour = (int) substr($sTime, 0, 2);
 		$iMin = (int) substr($sTime, -2);
 		$fTime = (float) $iHour + $iMin / 60;
@@ -168,10 +376,7 @@ class _CoverageWindow_ extends cmdbAbstractObject
 						// Not the last interval, ends within the specified period
 						$iEnd = $aInterval['end']->format('U');
 					}
-//$sStart = date('Y-m-d H:i:s', $iStart);
-//$sEnd = date('Y-m-d H:i:s', $iEnd);
-//echo "<p>Adding: ".($iEnd - $iStart)." s [$sStart ; $sEnd]</p>";
-
+					
 					$iCurDuration += $iEnd - $iStart;
 					$oCurDate = clone $aInterval['end'];
 				}
@@ -180,14 +385,9 @@ class _CoverageWindow_ extends cmdbAbstractObject
 			{
 					$oCurDate = clone $oEndDate;
 			}
-//echo "<p>\$idx: $idx \$oCurDate: ".($oCurDate->format('Y-m-d H:i:s'))."</p>";
 			$idx++;
 		}
 		while( ($aInterval != null) && ($oCurDate->format('U') < $oEndDate->format('U')));
-//echo "<p>\$aInterval != null returned:".($aInterval != null)."</p>";
-//echo "<p>\$(\$oCurDate->format('U') < \$oEndDate->format('U') returned:".($oCurDate->format('U') < $oEndDate->format('U'))."</p>";
-		
-//echo "<p>TOTAL (open hours) duration: ".$iCurDuration." s [".$oStartDate->format('Y-m-d H:i:s')." ; ".$oEndDate->format('Y-m-d H:i:s')."]</p>";
 		return $iCurDuration;		
 	}
 
@@ -226,7 +426,7 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		else
 		{
 			$iWeekDay = $oStart->format('w');
-			$aData = $this->GetOpenHours($iWeekDay);
+			$aData = $this->GetOpenHours($iWeekDay, $oStartDate->format('H:i'));
 			$this->ModifyDate($oStart, $aData['start']);
 			$this->ModifyDate($oEnd, $aData['end']);
 		}
@@ -269,7 +469,7 @@ class _CoverageWindow_ extends cmdbAbstractObject
 				$oStart->modify('+1 day');
 				$oEnd = clone $oStart;
 				$iWeekDay = $oStart->format('w');
-				$aData = $this->GetOpenHours($iWeekDay);
+				$aData = $this->GetOpenHours($iWeekDay, '00:00');
 				$this->ModifyDate($oStart, $aData['start']);
 				$this->ModifyDate($oEnd, $aData['end']);
 			}
@@ -297,17 +497,63 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		$oDate->modify("+ $iStartHour hours");
 	}
 	
-	protected function GetOpenHours($iDayIndex)
+	/**
+	 * Get the first interval of open hours which ends after the given time, for the given day of the week
+	 * @param int $iDayIndex zero based index for the day of the week (0 = Sunday)
+	 * @param string $sTime The time expressed as a string in 24 hours format: hh:mm
+	 * @return multitype:number An array like ('start' => 8.5, 'end' => 19.25 )
+	 */
+	protected function GetOpenHours($iDayIndex, $sTime)
 	{
 		static $aWeekDayNames = array(0 => 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday');
-		$sDayName = $aWeekDayNames[$iDayIndex];
-		return array(
-			'start' => $this->GetAsDecimal($sDayName.'_start'),
-			'end' => $this->GetAsDecimal($sDayName.'_end')
+		
+		$aResult = array(
+			'start' => 0,
+			'end' => 0,
 		);
+		
+		$sDayName = $aWeekDayNames[$iDayIndex];
+		$oMatchingInterval = null;
+		
+		if ($this->aIntervalsPerWeekday == null)
+		{
+			$oSet = $this->Get('interval_list');
+			$oSet->Rewind();
+			while($oInterval = $oSet->Fetch())
+			{
+				$this->aIntervalsPerWeekday[$oInterval->Get('weekday')][] = $oInterval;
+			}
+		}
+		
+		// Let's find the first (earliest) interval which ends after the given time
+		$sMinEndTime = '24:00';
+		foreach($this->aIntervalsPerWeekday[$sDayName] as $oInterval)
+		{
+			if (($oInterval->Get('end_time') > $sTime) && ($oInterval->Get('end_time') <= $sMinEndTime))
+			{
+				$oMatchingInterval = $oInterval;
+				$sMinEndTime = $oInterval->Get('end_time');
+			}
+		}
+		
+		if ($oMatchingInterval)
+		{
+			$aResult = array(
+				'start' => self::ToDecimal($oMatchingInterval->Get('start_time')),
+				'end' => self::ToDecimal($oMatchingInterval->Get('end_time')),
+			);
+		}
+		
+		return $aResult;
 	}
 	
-	protected function IsHoliday($oDate, $aHolidays)
+	/**
+	 * Is the given date a holiday?
+	 * @param DateTime $oDate
+	 * @param hash $aHolidays
+	 * @return boolean
+	 */
+	protected function IsHoliday(DateTime $oDate, $aHolidays)
 	{
 		$sDate = $oDate->format('Y-m-d');
 		
@@ -342,7 +588,13 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		}
 	}
 
-	public function IsInsideCoverage($oCurDate, $oHolidaysSet = null)
+	/**
+	 * Check if the given date & time is within the open hours of the coverage window
+	 * @param DateTime $oCurDate
+	 * @param DBObjectSet $oHolidaysSet
+	 * @return boolean
+	 */
+	public function IsInsideCoverage(DateTime $oCurDate, $oHolidaysSet = null)
 	{
 		if ($oHolidaysSet != null)
 		{
@@ -356,7 +608,8 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		}
 		
 		// compute today's limits for the coverage
-		$aData = $this->GetOpenHours($oCurDate->format('w'));
+		$aData = $this->GetOpenHours($oCurDate->format('w'), $oCurDate->format('H:i'));
+		
 		$oStart = clone $oCurDate;
 		$sPHPTimezone = MetaModel::GetConfig()->Get('timezone');
 		if ($sPHPTimezone != '')
