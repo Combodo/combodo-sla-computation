@@ -70,12 +70,13 @@ $(function()
 						me._eventDialog(calEvent._id, calEvent._start, calEvent._end);						
 					}
 				},
+				eventRender: function(event, element, view) { me._drawEvent(event, element, view); },
 				selectHelper: false,
 				select: function(start, end, allDay)
 				{
 					if (me.options.edit_mode)
 					{
-						var oInterval = { id: me.iNextId, start: start.getTime()/1000, end: end.getTime()/1000, allDay: false};
+						var oInterval = { id: me.iNextId, start: start.getTime()/1000, end: end.getTime()/1000, allDay: false, title: $.fullCalendar.formatDate(end, 'H:mm') };
 						me.iNextId--;
 						me.options.intervals.push(oInterval);
 						me._refresh();
@@ -93,8 +94,8 @@ $(function()
 				selectable: this.options.edit_mode,
 				minTime: 0,
 				maxTime: 24,
-				firstHour: 8,
-				aspectRatio: 2,
+				firstHour: 0,
+				aspectRatio: 0.75,
 				axisFormat: 'H:mm', // uppercase H for 24-hour clock
 				defaultView: 'agendaWeek',
 				loading: function(isLoading, view) {
@@ -124,8 +125,26 @@ $(function()
 		},
 		_fetchEvents: function(start, end, callback)
 		{
-			console.log(this.options.intervals);
 			callback(this.options.intervals);
+		},
+		_drawEvent: function(event, element, view)
+		{
+			var oStart = new Date(event.start);
+			var oEnd = new Date(event.end);
+			$('.fc-event-time', element).html(this._formatDate(oStart)+' - '+this._formatDate(oEnd));
+			$('.fc-event-title', element).remove();
+		},
+		_formatDate: function(oDate)
+		{
+			var sDate = new String(oDate.getHours());
+			sDate += ':';
+			var iMinutes = oDate.getMinutes();
+			if (iMinutes < 10)
+			{
+				sDate += '0';
+			}
+			sDate += iMinutes;
+			return sDate;
 		},
 		_eventDialog: function(id, start, end)
 		{
@@ -222,6 +241,7 @@ $(function()
 				var oEvent = aEvents[0];
 				oEvent.start = this._setTime(oEvent.start, sStartTime);
 				oEvent.end = this._setTime(oEvent.start, sEndTime); // Use start time since end time may already be tomorrow if 24:00 was set before
+				oEvent.title = this._formatDate(new Date(oEvent.end));
 				this.element.fullCalendar('updateEvent', oEvent);
 				this._serializeAllEvents();
 				return true;
@@ -255,7 +275,6 @@ $(function()
 				this.options.intervals.push(oInterval);
 			}
 			var sJSON = JSON.stringify(this.options.intervals);
-			console.log(sJSON);
 			$('#calendar_json_intervals').val(sJSON);
 		},
 		// events bound via _bind are removed automatically

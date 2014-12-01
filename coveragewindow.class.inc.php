@@ -23,8 +23,8 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		$oPage->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/css/fullcalendar.css?v='.ITOP_BUILD_DATE);
 		$oPage->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/js/fullcalendar.js?v='.ITOP_BUILD_DATE);
 		$oPage->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/js/cwcalendar.js?v='.ITOP_BUILD_DATE);
-		$oPage->add('<div style="text-align:center;">'.Dict::S('Class:CoverageWindow/Attribute:interval_list').'</div>');
-		$oPage->add('<div id="cwcalendar"></div>');
+		$oPage->add('<div style="max-width:800px;"><div style="text-align:center;">'.Dict::S('Class:CoverageWindow/Attribute:interval_list').'</div>');
+		$oPage->add('<div id="cwcalendar"></div></div>');
 		
 		$sInitialDate = '2010-11-01'; // it's a Monday
 		$aWeekdaysOffset = array('monday' => 0, 'tuesday' => 1, 'wednesday' => 2, 'thursday' => 3, 'friday' => 4, 'saturday' => 5, 'sunday' => 6);
@@ -491,7 +491,7 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		$iStartHour = floor($fHours);
 		if ($iStartHour != $fHours)
 		{
-			$iStartMinutes = floor(($fHours - $iStartHour)*60);
+			$iStartMinutes = (int)round(($fHours - $iStartHour)*60); // Beware: floor( (12+(10/60) - 12)*60 ) => 9 !! Use round() instead of floor() to avoid the propagation of an error of -3E-14
 			$oDate->modify("+ $iStartMinutes minutes");
 		}
 		$oDate->modify("+ $iStartHour hours");
