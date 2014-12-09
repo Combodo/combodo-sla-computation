@@ -399,11 +399,11 @@ class _CoverageWindow_ extends cmdbAbstractObject
 	protected function GetNextInterval2($oStartDate, $aHolidays)
 	{
 		$oStart = clone $oStartDate;
-
 		$sPHPTimezone = MetaModel::GetConfig()->Get('timezone');
 		if ($sPHPTimezone != '')
 		{
 			$oTZ = new DateTimeZone($sPHPTimezone);
+			$oStartDate->SetTimeZone($oTZ); // Needed since the supplied DateTime is (or may be) expressed in UTC timezone and we call ->format('H:i') below
 			$oStart->SetTimeZone($oTZ);
 		}
 		$oStart->SetTime(0, 0, 0);
@@ -506,7 +506,7 @@ class _CoverageWindow_ extends cmdbAbstractObject
 	protected function GetOpenHours($iDayIndex, $sTime)
 	{
 		static $aWeekDayNames = array(0 => 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday');
-		
+				
 		$aResult = array(
 			'start' => 0,
 			'end' => 0,
