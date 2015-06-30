@@ -527,12 +527,15 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		
 		// Let's find the first (earliest) interval which ends after the given time
 		$sMinEndTime = '24:00';
-		foreach($this->aIntervalsPerWeekday[$sDayName] as $oInterval)
+		if (array_key_exists($sDayName, $this->aIntervalsPerWeekday))
 		{
-			if (($oInterval->Get('end_time') > $sTime) && ($oInterval->Get('end_time') <= $sMinEndTime))
+			foreach($this->aIntervalsPerWeekday[$sDayName] as $oInterval)
 			{
-				$oMatchingInterval = $oInterval;
-				$sMinEndTime = $oInterval->Get('end_time');
+				if (($oInterval->Get('end_time') > $sTime) && ($oInterval->Get('end_time') <= $sMinEndTime))
+				{
+					$oMatchingInterval = $oInterval;
+					$sMinEndTime = $oInterval->Get('end_time');
+				}
 			}
 		}
 		
