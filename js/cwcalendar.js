@@ -59,9 +59,27 @@ $(function()
 				},
 				dayNames: this.options.labels.weekdays,
 				eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+					if (event.start.getDate() != event.end.getDate())
+					{
+						// Overflow
+						event.end.setDate(event.start.getDate());
+						event.end.setHours(24);
+						event.end.setMinutes(0);
+						event.end.setSeconds(0);
+						
+					}
 					me._serializeAllEvents();
 				},
 				eventResize: function(event, dayDelta, minuteDelta, revertFunc) {
+					if (event.start.getDate() != event.end.getDate())
+					{
+						// Overflow
+						event.end.setDate(event.start.getDate());
+						event.end.setHours(24);
+						event.end.setMinutes(0);
+						event.end.setSeconds(0);
+						
+					}
 					me._serializeAllEvents();
 				},
 				eventClick: function(calEvent, jsEvent, view) {
