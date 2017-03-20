@@ -24,7 +24,7 @@ $(function()
 			},
 			initial_date: null, // format YYYY-MM-DD
 			edit_mode: false,
-			intervals: []
+			intervals: [] // time intervals given in the UTC representation
 		},
 		// the constructor
 		_create: function()
@@ -42,6 +42,10 @@ $(function()
 				iYear = parseInt(aMatches[1], 10);
 				iMonth = parseInt(aMatches[2], 10) - 1; // Zero based
 				iDayOfMonth = parseInt(aMatches[3], 10);
+
+				// Compute the offset between h:m given in the local (browser) timezone, and UTC (expected by the server)
+				// It is assumed that the reference period (constant in our case) has no daylight saving change
+				this.options.timeshift = oNow.getTimezoneOffset() * 60;
 			}
 
 			this.element
@@ -94,7 +98,14 @@ $(function()
 				{
 					if (me.options.edit_mode)
 					{
-						var oInterval = { id: me.iNextId, start: start.getTime()/1000, end: end.getTime()/1000, allDay: false, title: $.fullCalendar.formatDate(end, 'H:mm') };
+						// Convert into the structure that will be further returned to the server
+						var oInterval = {
+							id: me.iNextId,
+							start: (start.getTime()/1000) - me.options.timeshift,
+							end: (end.getTime()/1000) - me.options.timeshift,
+							allDay: false,
+							title: $.fullCalendar.formatDate(end, 'H:mm')
+						};
 						me.iNextId--;
 						me.options.intervals.push(oInterval);
 						me._refresh();
@@ -143,7 +154,20 @@ $(function()
 		},
 		_fetchEvents: function(start, end, callback)
 		{
-			callback(this.options.intervals);
+			// Convert intervals into the browser timezone
+			var aLocalIntervals = [];
+			for(k in this.options.intervals)
+			{
+				oInterval = this.options.intervals[k];
+				var oLocalInterval = {
+					id: oInterval.id,
+					start: oInterval.start + this.options.timeshift,
+					end: oInterval.end + this.options.timeshift,
+					allDay: false
+				};
+				aLocalIntervals.push(oLocalInterval);
+			}
+			callback(aLocalIntervals);
 		},
 		_drawEvent: function(event, element, view)
 		{
@@ -289,7 +313,13 @@ $(function()
 			for(k in aEvents)
 			{
 				oEv = aEvents[k];
-				var oInterval = { id: oEv.id, start: oEv.start.getTime()/1000, end: oEv.end.getTime()/1000, allDay: false};
+				// Convert into the structure that will be further returned to the server
+				var oInterval = {
+					id: oEv.id,
+					start: (oEv.start.getTime()/1000) - this.options.timeshift,
+					end: (oEv.end.getTime()/1000) - this.options.timeshift,
+					allDay: false
+				};
 				this.options.intervals.push(oInterval);
 			}
 			var sJSON = JSON.stringify(this.options.intervals);
