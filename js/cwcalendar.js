@@ -30,27 +30,25 @@ $(function()
 		_create: function()
 		{
 			var me = this;
-			var oNow = new Date;
-			var iYear = oNow.getFullYear();
-			var iMonth = oNow.getMonth(); // Zero based
-			var iDayOfMonth = oNow.getDate();
-			this.iNextId = -1;
-			
-			if (this.options.initial_date != null)
+			if (this.options.initial_date == null)
 			{
-				var aMatches = this.options.initial_date.match(/^([0-9]+)-([0-9]+)-([0-9]+)$/);
-				iYear = parseInt(aMatches[1], 10);
-				iMonth = parseInt(aMatches[2], 10) - 1; // Zero based
-				iDayOfMonth = parseInt(aMatches[3], 10);
-
-				// Compute the offset between h:m given in the local (browser) timezone, and UTC (expected by the server)
-				// It is assumed that the reference period (constant in our case) has no daylight saving change
-				this.options.timeshift = oNow.getTimezoneOffset() * 60;
+				console.log('cwcalendar: misssing option initial_date');
 			}
+			var aMatches = this.options.initial_date.match(/^([0-9]+)-([0-9]+)-([0-9]+)$/);
+			var iYear = parseInt(aMatches[1], 10);
+			var iMonth = parseInt(aMatches[2], 10) - 1; // Zero based
+			var iDayOfMonth = parseInt(aMatches[3], 10);
+
+			this.iNextId = -1;
+
+			// Compute the offset between h:m given in the local (browser) timezone, and UTC (expected by the server)
+			// It is assumed that the reference period (constant in our case) has no daylight saving change
+            var oNow = new Date(iYear, iMonth, iDayOfMonth);
+			this.options.timeshift = oNow.getTimezoneOffset() * 60;
 
 			this.element
 			.addClass('itop-cwcalendar');
-			
+
 			this.element.fullCalendar({
 				year: iYear,
 				month: iMonth,
@@ -70,7 +68,7 @@ $(function()
 						event.end.setHours(24);
 						event.end.setMinutes(0);
 						event.end.setSeconds(0);
-						
+
 					}
 					me._serializeAllEvents();
 				},
@@ -82,14 +80,14 @@ $(function()
 						event.end.setHours(24);
 						event.end.setMinutes(0);
 						event.end.setSeconds(0);
-						
+
 					}
 					me._serializeAllEvents();
 				},
 				eventClick: function(calEvent, jsEvent, view) {
 					if (me.options.edit_mode)
 					{
-						me._eventDialog(calEvent._id, calEvent._start, calEvent._end);						
+						me._eventDialog(calEvent._id, calEvent._start, calEvent._end);
 					}
 				},
 				eventRender: function(event, element, view) { me._drawEvent(event, element, view); },
@@ -109,7 +107,7 @@ $(function()
 						me.iNextId--;
 						me.options.intervals.push(oInterval);
 						me._refresh();
-						me._serializeAllEvents();						
+						me._serializeAllEvents();
 					}
 				},
 				header: {
@@ -195,7 +193,7 @@ $(function()
 			var sWholeDayChecked = '';
 			if (sEnd == '00:00')
 			{
-				sEnd = '24:00'; 
+				sEnd = '24:00';
 			}
 			if ((sStart == '00:00') && (sEnd == '24:00'))
 			{
@@ -207,7 +205,7 @@ $(function()
 			sDlg += '<tr><td>'+this.options.labels.start+'</td><td><input id="dlg_start_time" type="text" size="5" value="'+sStart+'"/><span style="display:inline-block;width:20px;" id="v_dlg_start_time"></span></td></tr>';
 			sDlg += '<tr><td>'+this.options.labels.end+'</td><td><input id="dlg_end_time" type="text" size="5" value="'+sEnd+'"/><span style="display:inline-block;width:20px;" id="v_dlg_end_time"></span></td></tr>';
 			sDlg += '<tr><td><label for="whole_day">'+this.options.labels.whole_day+'</label></td><td><input type="checkbox" id="dlg_whole_day" '+sWholeDayChecked+' /></td></tr>';
-			
+
 			sDlg += '</table></div>';
 			$('body').append(sDlg);
 			var oDlg = $('#cw_calendar_dlg');
@@ -226,7 +224,7 @@ $(function()
 			if (sWholeDayChecked != '')
 			{
 				$('#dlg_start_time').attr('disabled', 'disabled');
-				$('#dlg_end_time').attr('disabled', 'disabled');	
+				$('#dlg_end_time').attr('disabled', 'disabled');
 			}
 			$('#dlg_whole_day').bind('click change', function() { me._wholeDayClicked(); });
 			$('#dlg_start_time').bind('change keyup', function() { me._validateTime($(this), false); });
@@ -262,7 +260,7 @@ $(function()
 			}
 			else
 			{
-				$('#v_'+sId).html('<img src="../images/validation_error.png"/>');			
+				$('#v_'+sId).html('<img src="../images/validation_error.png"/>');
 			}
 			return bOk;
 		},
@@ -333,7 +331,7 @@ $(function()
 			.removeClass('itop-cwcalendar');
 
 			// call the original destroy method since we overwrote it
-			$.Widget.prototype.destroy.call( this );			
+			$.Widget.prototype.destroy.call( this );
 		},
 		// _setOptions is called with a hash of all options that are changing
 		_setOptions: function()
@@ -347,5 +345,5 @@ $(function()
 			// in 1.9 would use _super
 			$.Widget.prototype._setOption.call( this, key, value );
 		}
-	});	
+	});
 });
