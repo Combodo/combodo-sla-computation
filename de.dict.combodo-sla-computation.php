@@ -35,24 +35,24 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 	'Class:CoverageWindow/Attribute:description+' => '',
 	'Class:CoverageWindow/Attribute:friendlyname' => 'Bezeichnung',
 	'Class:CoverageWindow/Attribute:friendlyname+' => '',
-	'Class:CoverageWindow/Attribute:interval_list' => 'Open Hours~~',
-	'WorkingHoursInterval:StartTime' => 'Start Time:~~',
-	'WorkingHoursInterval:EndTime' => 'End Time:~~',
-	'WorkingHoursInterval:WholeDay' => 'Whole Day:~~',
-	'WorkingHoursInterval:RemoveIntervalButton' => 'Remove Interval~~',
-	'WorkingHoursInterval:DlgTitle' => 'Open hours interval edition~~',
-	'Class:CoverageWindowInterval' => 'Open hours Interval~~',
-	'Class:CoverageWindowInterval/Attribute:coverage_window_id' => 'Coverage Window~~',
-	'Class:CoverageWindowInterval/Attribute:weekday' => 'Day of the week~~',
-	'Class:CoverageWindowInterval/Attribute:weekday/Value:sunday' => 'Sunday~~',
-	'Class:CoverageWindowInterval/Attribute:weekday/Value:monday' => 'Monday~~',
-	'Class:CoverageWindowInterval/Attribute:weekday/Value:tuesday' => 'Tuesday~~',
-	'Class:CoverageWindowInterval/Attribute:weekday/Value:wednesday' => 'Wednesday~~',
-	'Class:CoverageWindowInterval/Attribute:weekday/Value:thursday' => 'Thursday~~',
-	'Class:CoverageWindowInterval/Attribute:weekday/Value:friday' => 'Friday~~',
-	'Class:CoverageWindowInterval/Attribute:weekday/Value:saturday' => 'Saturday~~',
-	'Class:CoverageWindowInterval/Attribute:start_time' => 'Start Time~~',
-	'Class:CoverageWindowInterval/Attribute:end_time' => 'End Time~~',
+	'Class:CoverageWindow/Attribute:interval_list' => 'Servicezeiten',
+	'WorkingHoursInterval:StartTime' => 'Startzeit:',
+	'WorkingHoursInterval:EndTime' => 'Endzeit:',
+	'WorkingHoursInterval:WholeDay' => 'Ganztags:',
+	'WorkingHoursInterval:RemoveIntervalButton' => 'Zeitinterval löschen',
+	'WorkingHoursInterval:DlgTitle' => 'Servicezeitinterval bearbeiten',
+	'Class:CoverageWindowInterval' => 'Servicezeitinterval',
+	'Class:CoverageWindowInterval/Attribute:coverage_window_id' => 'Zeitfenster',
+	'Class:CoverageWindowInterval/Attribute:weekday' => 'Wochentag',
+	'Class:CoverageWindowInterval/Attribute:weekday/Value:sunday' => 'Sonntag',
+	'Class:CoverageWindowInterval/Attribute:weekday/Value:monday' => 'Montag',
+	'Class:CoverageWindowInterval/Attribute:weekday/Value:tuesday' => 'Dienstag',
+	'Class:CoverageWindowInterval/Attribute:weekday/Value:wednesday' => 'Mittwoch',
+	'Class:CoverageWindowInterval/Attribute:weekday/Value:thursday' => 'Donnerstag',
+	'Class:CoverageWindowInterval/Attribute:weekday/Value:friday' => 'Freitag',
+	'Class:CoverageWindowInterval/Attribute:weekday/Value:saturday' => 'Samstag',
+	'Class:CoverageWindowInterval/Attribute:start_time' => 'Startzeit',
+	'Class:CoverageWindowInterval/Attribute:end_time' => 'Endzeit',
 	
 ));
 
@@ -88,8 +88,8 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 //
 
 Dict::Add('DE DE', 'German', 'Deutsch', array(
-	'Class:CoverageWindowInterval/Attribute:coverage_window_name' => 'Coverage window name~~',
-	'Class:CoverageWindowInterval/Attribute:coverage_window_name+' => '~~',
+	'Class:CoverageWindowInterval/Attribute:coverage_window_name' => 'Zeitfenstername',
+	'Class:CoverageWindowInterval/Attribute:coverage_window_name+' => '',
 ));
 
 //
@@ -97,6 +97,6 @@ Dict::Add('DE DE', 'German', 'Deutsch', array(
 //
 
 Dict::Add('DE DE', 'German', 'Deutsch', array(
-	'Class:Holiday/Attribute:calendar_name' => 'Calendar name~~',
-	'Class:Holiday/Attribute:calendar_name+' => '~~',
+	'Class:Holiday/Attribute:calendar_name' => 'Kalendername',
+	'Class:Holiday/Attribute:calendar_name+' => '',
 ));
