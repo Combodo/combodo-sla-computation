@@ -81,7 +81,7 @@ CSS
 			$iOffset = $aWeekdaysOffset[$oInterval->Get('weekday')];
 			if ($iOffset != 0)
 			{
-				$oDate->modify('+'.$iOffset.' day');
+				$oDate->modify($iOffset.' day');
 			}
 			
 			$oStart = clone $oDate;
@@ -366,7 +366,7 @@ CSS
 		while( ($iIntervalDuration !== null) && ($iDuration > $iCurDuration) );
 		
 		$oDeadline = clone $oCurDate;
-		$oDeadline->modify( '+'.($iDuration - $iCurDuration).' seconds');			
+		$oDeadline->modify( ($iDuration - $iCurDuration).' seconds');
 		return $oDeadline;		
 	}
 
@@ -475,7 +475,7 @@ CSS
 				$iHoliday = $this->GetHoliday($oStart, $aHolidays);
 				$oEndOfTheHoliday = clone $oStart;
 				$oEndOfTheHoliday->SetTime(0, 0, 0);
-				$oEndOfTheHoliday->modify('+1 day');
+				$oEndOfTheHoliday->modify('1 day');
 				WorkingTimeRecorder::AddInterval($oStart->format('U'), $oEndOfTheHoliday->format('U'), true, 'Holiday', $iHoliday);
 			}
 		}
@@ -497,7 +497,7 @@ CSS
 				$oStart->SetTimeZone($oTZ);
 			}
 			$oStart->SetTime(0, 0, 0);
-			$oStart->modify('+1 day');
+			$oStart->modify('1 day');
 			$oEnd = clone $oStart;
 			if ($this->IsHoliday($oStart, $aHolidays))
 			{
@@ -509,7 +509,7 @@ CSS
 					$iHoliday = $this->GetHoliday($oStart, $aHolidays);
 					$oEndOfTheHoliday = clone $oStart;
 					$oEndOfTheHoliday->SetTime(0, 0, 0);
-					$oEndOfTheHoliday->modify('+1 day');
+					$oEndOfTheHoliday->modify('1 day');
 					WorkingTimeRecorder::AddInterval($oStart->format('U'), $oEndOfTheHoliday->format('U'), true, 'Holiday', $iHoliday);
 				}
 			}
@@ -522,7 +522,7 @@ CSS
 					$oStart->SetTimeZone($oTZ);
 				}
 				$oStart->SetTime(0, 0, 0);
-				$oStart->modify('+1 day');
+				$oStart->modify('1 day');
 				$oEnd = clone $oStart;
 				$iWeekDay = $oStart->format('w');
 				$aData = $this->GetOpenHours($iWeekDay, '00:00');
@@ -549,9 +549,9 @@ CSS
 		if ($iStartHour != $fHours)
 		{
 			$iStartMinutes = (int)round(($fHours - $iStartHour)*60); // Beware: floor( (12+(10/60) - 12)*60 ) => 9 !! Use round() instead of floor() to avoid the propagation of an error of -3E-14
-			$oDate->modify("+ $iStartMinutes minutes");
+			$oDate->modify("$iStartMinutes minutes");
 		}
-		$oDate->modify("+ $iStartHour hours");
+		$oDate->modify("$iStartHour hours");
 	}
 	
 	/**
