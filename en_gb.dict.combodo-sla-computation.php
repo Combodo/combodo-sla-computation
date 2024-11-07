@@ -66,7 +66,7 @@ Dict::Add('EN GB', 'British English', 'British English', array(
 	'Menu:Holidays' => 'Holidays',
 	'Menu:Holidays+' => 'All Holidays',
 	'Class:Holiday' => 'Holiday',
-	'Class:Holiday+' => 'A non working day',
+	'Class:Holiday+' => 'A non-working day',
 	'Class:Holiday/Attribute:name' => 'Name',
 	'Class:Holiday/Attribute:date' => 'Date',
 	'Class:Holiday/Attribute:calendar_id' => 'Calendar',
