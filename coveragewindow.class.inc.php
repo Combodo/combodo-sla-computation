@@ -53,10 +53,10 @@ class _CoverageWindow_ extends cmdbAbstractObject
 	{
 		$aFieldsMap = parent::GetBareProperties($oPage, $bEditMode, $sPrefix, $aExtraParams);
 
-		$oPage->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/css/fullcalendar.css?v='.ITOP_BUILD_DATE);
-		$oPage->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/css/style.css?v='.ITOP_BUILD_DATE);
-		$oPage->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/js/fullcalendar.js?v='.ITOP_BUILD_DATE);
-		$oPage->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-sla-computation/js/cwcalendar.js?v='.ITOP_BUILD_DATE);
+		$oPage->LinkStylesheetFromModule('combodo-sla-computation/css/fullcalendar.css?v='.ITOP_BUILD_DATE);
+		$oPage->LinkStylesheetFromModule('combodo-sla-computation/css/style.css?v='.ITOP_BUILD_DATE);
+		$oPage->LinkScriptFromModule('combodo-sla-computation/js/fullcalendar.js?v='.ITOP_BUILD_DATE);
+		$oPage->LinkScriptFromModule('combodo-sla-computation/js/cwcalendar.js?v='.ITOP_BUILD_DATE);
 
 		if (!static::UseLegacy()) {
 			$oPage->add_style(<<<CSS
