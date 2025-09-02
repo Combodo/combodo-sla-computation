@@ -58,15 +58,6 @@ class _CoverageWindow_ extends cmdbAbstractObject
 		$oPage->LinkScriptFromModule('combodo-sla-computation/js/fullcalendar.js?v='.ITOP_BUILD_DATE);
 		$oPage->LinkScriptFromModule('combodo-sla-computation/js/cwcalendar.js?v='.ITOP_BUILD_DATE);
 
-		if (!static::UseLegacy()) {
-			$oPage->add_style(<<<CSS
-.cw_calendar_dlg_inputs tr:not(:first-child) td {
-	padding-top: 6px; /* Same as the SCSS variable \$ibo-input-one-way-password--elements-spacing-y */
-}
-CSS
-			);
-		}
-
 		$oPage->add('<div><div style="text-align:center;">'.Dict::S('Class:CoverageWindow/Attribute:interval_list').'</div>');
 		$oPage->add('<div id="cwcalendar"></div></div>');
 		

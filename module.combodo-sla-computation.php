@@ -16,7 +16,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'combodo-sla-computation/2.4.4',
+	'combodo-sla-computation/2.5.0-dev',
 	array(
 		// Identification
 		//
@@ -26,8 +26,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
-			'itop-sla-computation/1.0.0',
-			'itop-service-mgmt/2.4.0||itop-service-mgmt-provider/2.4.0', // Needed to place new menu entries
+			'itop-service-mgmt/3.3.0||itop-service-mgmt-provider/3.3.0', // Needed to place new menu entries
 		),
 		'mandatory' => true,
 		'visible' => false,

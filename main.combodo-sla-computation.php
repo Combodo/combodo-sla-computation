@@ -19,7 +19,7 @@
  * - Open hours for each day of the week
  * - An explicit list of holidays
  */
-class EnhancedSLAComputation extends SLAComputationAddOnAPI
+class EnhancedSLAComputation  implements iWorkingTimeComputer
 {
 	/**
 	 * Called when the module is loaded, used for one time initialization (if needed)
@@ -104,7 +104,7 @@ class EnhancedSLAComputation extends SLAComputationAddOnAPI
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
 	 */
-	public static function GetDeadline($oTicket, $iDuration, DateTime $oStartDate, $sCoverageOql = '', $sHolidaysOql = '')
+	public function GetDeadline($oTicket, $iDuration, DateTime $oStartDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
@@ -173,7 +173,7 @@ class EnhancedSLAComputation extends SLAComputationAddOnAPI
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
 	 */
-	public static function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate, $sCoverageOql = '', $sHolidaysOql = '')
+	public function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate, $sCoverageOql = '', $sHolidaysOql = '')
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
@@ -192,7 +192,9 @@ class EnhancedSLAComputation extends SLAComputationAddOnAPI
 					WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_INFO, 'No coverage window');
 				}
 				// No coverage window: 24x7 computation.. what about holidays ??
-				$iDuration = parent::GetOpenDuration($oTicket, $oStartDate, $oEndDate);
+				$sDefaultWorkingtimeClass = MetaModel::GetDefaultWorkingTime();
+				$oWorkingTime = new $sDefaultWorkingtimeClass();
+				$iDuration = $oWorkingTime->GetOpenDuration($oTicket, $oStartDate, $oEndDate);
 				break;
 
 			case 1:
@@ -303,7 +305,10 @@ class EnhancedSLAComputation extends SLAComputationAddOnAPI
 		$iDuration = $oEnd->format('U') - $oStart->format('U');
 		echo "<p>Interval: [ ".$oStart->format('Y-m-d H:i:s (D - w)')." ; ".$oEnd->format('Y-m-d H:i:s')." ], duration  $iDuration s</p>";
 	}
+
+	public static function GetDescription()
+	{
+		return 'Enhanced SLA Computation: Open hours + Holidays';
+	}
 }
 
-// By default, since this extension is present, let's use it !
-SLAComputation::SelectModule('EnhancedSLAComputation');
