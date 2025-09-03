@@ -47,7 +47,7 @@ class EnhancedSLAComputation  implements iWorkingTimeComputer
 	 * @throws \OQLException
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
 	 */
-	protected static function GetCoverageSet($oTicket, $sOql)
+	protected static function GetCoverageSet($oTicket, $sOql = null)
 	{
 		$sCoverageOQL = $sOql ?: static::GetCoverageOql($oTicket);
 		if ($sCoverageOQL !== '')
@@ -77,7 +77,7 @@ class EnhancedSLAComputation  implements iWorkingTimeComputer
 	 * @throws \OQLException
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
 	 */
-	protected static function GetHolidaysSet($oTicket, $sOql)
+	protected static function GetHolidaysSet($oTicket, $sOql = null)
 	{
 		$sHolidaysOQL = $sOql ?: static::GetHolidaysOql($oTicket);
 		if ($sHolidaysOQL !== '')
@@ -111,8 +111,8 @@ class EnhancedSLAComputation  implements iWorkingTimeComputer
 			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
 		}
 
-		$oCoverageSet = static::GetCoverageSet($oTicket, $sCoverageOql);
-		$oHolidaysSet = static::GetHolidaysSet($oTicket, $sHolidaysOql);
+		$oCoverageSet = static::GetCoverageSet($oTicket);
+		$oHolidaysSet = static::GetHolidaysSet($oTicket);
 
 		$oCoverage = null;
 		switch ($oCoverageSet->Count())
@@ -173,15 +173,15 @@ class EnhancedSLAComputation  implements iWorkingTimeComputer
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
 	 */
-	public function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate, $sCoverageOql = '', $sHolidaysOql = '')
+	public function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
 			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
 		}
 
-		$oCoverageSet = static::GetCoverageSet($oTicket, $sCoverageOql);
-		$oHolidaysSet = static::GetHolidaysSet($oTicket, $sHolidaysOql);
+		$oCoverageSet = static::GetCoverageSet($oTicket,);
+		$oHolidaysSet = static::GetHolidaysSet($oTicket);
 
 		$oCoverage = null;
 		switch ($oCoverageSet->Count())
