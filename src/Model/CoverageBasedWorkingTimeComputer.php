@@ -1,43 +1,44 @@
 <?php
-// Copyright (C) 2010-2018 Combodo SARL
+// Copyright (C) 2010-2025 Combodo SARL
 //
-
-
-/**
- * Module combodo-sla-computation
- *
- * @author      Erwan Taloc <erwan.taloc@combodo.com>
- * @author      Romain Quetiez <romain.quetiez@combodo.com>
- * @author      Denis Flaven <denis.flaven@combodo.com>
- */
-
-
 
 /**
  * Extension to the SLA computation mechanism
  * This class implements a behavior based on:
  * - Open hours for each day of the week
  * - An explicit list of holidays
- * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
+ * since 2.5.0 for iTop 3.3.0
  */
-class EnhancedSLAComputation
+class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 {
+	private $sCoverageOql;
+	private $sHolidaysOql;
+
 	/**
 	 * Called when the module is loaded, used for one time initialization (if needed)
 	 */
 	public function Init()
 	{
 	}
-
+	function __construct()
+	{
+		$this->sCoverageOql = MetaModel::GetModuleSetting('combodo-sla-computation', 'coverage_oql', '');
+		$this->sHolidaysOql = MetaModel::GetModuleSetting('combodo-sla-computation', 'holidays_oql', '');
+	}
 	/**
 	 * @param Ticket $oTicket The ticket for which to compute the deadline
 	 *
 	 * @return string
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
 	 */
-	protected static function GetCoverageOql($oTicket)
+	protected function GetCoverageOql($oTicket)
 	{
-		return MetaModel::GetModuleSetting('combodo-sla-computation', 'coverage_oql', '');
+		return $this->sCoverageOql;
+	}
+
+	public function SetCoverageOql($sCoverageOql)
+	{
+		$this->sCoverageOql = $sCoverageOql;
 	}
 
 	/**
@@ -48,10 +49,10 @@ class EnhancedSLAComputation
 	 * @throws \OQLException
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
 	 */
-	protected static function GetCoverageSet($oTicket, $sOql)
+	protected function GetCoverageSet($oTicket)
 	{
-		$sCoverageOQL = $sOql ?: static::GetCoverageOql($oTicket);
-		if ($sCoverageOQL !== '')
+		$sCoverageOQL = $this->GetCoverageOql($oTicket);
+		if (utils::IsNotNullOrEmptyString($sCoverageOQL))
 		{
 			return new DBObjectSet(DBObjectSearch::FromOQL($sCoverageOQL), array(), array('this' => $oTicket));
 		}
@@ -65,9 +66,13 @@ class EnhancedSLAComputation
 	 * @return string
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
 	 */
-	protected static function GetHolidaysOql($oTicket)
+	protected function GetHolidaysOql($oTicket)
 	{
-		return MetaModel::GetModuleSetting('combodo-sla-computation', 'holidays_oql', '');
+		return $this->sHolidaysOql;
+	}
+	public function SetHolidaysOql($sHolidaysOql)
+	{
+		$this->sHolidaysOql = $sHolidaysOql;
 	}
 
 	/**
@@ -78,10 +83,10 @@ class EnhancedSLAComputation
 	 * @throws \OQLException
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
 	 */
-	protected static function GetHolidaysSet($oTicket, $sOql)
+	protected function GetHolidaysSet($oTicket)
 	{
-		$sHolidaysOQL = $sOql ?: static::GetHolidaysOql($oTicket);
-		if ($sHolidaysOQL !== '')
+		$sHolidaysOQL = $this->GetHolidaysOql($oTicket);
+		if (utils::IsNotNullOrEmptyString($sHolidaysOQL))
 		{
 			return new DBObjectSet(DBObjectSearch::FromOQL($sHolidaysOQL), array(), array('this' => $oTicket));
 		}
@@ -104,30 +109,16 @@ class EnhancedSLAComputation
 	 * @throws \MySQLException
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
-	 *
-	 *  replace with CoverageBasedWorkingTimeComputer::GetDeadline() :
-	 * * example:
-	 * *  before
-	 * *   $oDeadline = EnhancedSLAComputation::GetDeadline($oTicket, $iDuration, $dStartDate, $sCoverageOql, $sHolidaysOql);
-	 * *  after
-	 * *   $oComputer = new CoverageBasedWorkingTimeComputer();
-	 * *  if (utils::IsNotNullOrEmptyString($sCoverageOql)) {
-	 * *      $oComputer->SetCoverageOql($sCoverageOql);
-	 * *  }
-	 * *  if (utils::IsNotNullOrEmptyString($sHolidaysOql)) {
-	 * *      $oComputer->SetHolidaysOql($sHolidaysOql);
-	 * *  }
-	 * *  $oDeadline = $oComputer->GetDeadline($oTicket, $iDuration, $oStartDate);
 	 */
-	public static function GetDeadline($oTicket, $iDuration, DateTime $oStartDate, $sCoverageOql = '', $sHolidaysOql = '')
+	public function GetDeadline($oTicket, $iDuration, DateTime $oStartDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
 			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
 		}
 
-		$oCoverageSet = static::GetCoverageSet($oTicket, $sCoverageOql);
-		$oHolidaysSet = static::GetHolidaysSet($oTicket, $sHolidaysOql);
+		$oCoverageSet = $this->GetCoverageSet($oTicket);
+		$oHolidaysSet = $this->GetHolidaysSet($oTicket);
 
 		$oCoverage = null;
 		switch ($oCoverageSet->Count())
@@ -145,7 +136,7 @@ class EnhancedSLAComputation
 			case 1:
 				/** @var \CoverageWindow $oCoverage */
 				$oCoverage = $oCoverageSet->Fetch();
-				$oDeadline = static::GetDeadlineFromCoverage($oCoverage, $oHolidaysSet, $iDuration, $oStartDate);
+				$oDeadline = self::GetDeadlineFromCoverage($oCoverage, $oHolidaysSet, $iDuration, $oStartDate);
 				break;
 
 			default:
@@ -159,7 +150,7 @@ class EnhancedSLAComputation
 				/** @var \CoverageWindow $oCoverage */
 				while ($oCoverage = $oCoverageSet->Fetch())
 				{
-					$oTmpDeadline = static::GetDeadlineFromCoverage($oCoverage, $oHolidaysSet, $iDuration, $oStartDate);
+					$oTmpDeadline = self::GetDeadlineFromCoverage($oCoverage, $oHolidaysSet, $iDuration, $oStartDate);
 					// Retain the nearer deadline
 					// According to the PHP documentation, the plain comparison operator between DateTime objects
 					// (i.e $oTmpDeadline < $oDeadline) is only implemented in PHP 5.2.2
@@ -187,31 +178,16 @@ class EnhancedSLAComputation
 	 * @throws \MySQLException
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
-	 *
-	 *  replace with CoverageBasedWorkingTimeComputer::GetOpenDuration() :
-	 * example:
-	 *  before
-	 *   $iTimeSpentBB = EnhancedSLAComputation::GetOpenDuration($oTicket, $dStartDate, $dEndDate, $sCoverageOql, $sHolidaysOql);
-	 *  after
-	 *   $oComputer = new CoverageBasedWorkingTimeComputer();
-	 *  if (utils::IsNotNullOrEmptyString($sCoverageOql)) {
-	 *      $oComputer->SetCoverageOql($sCoverageOql);
-	 *  }
-	 *  if (utils::IsNotNullOrEmptyString($sHolidaysOql)) {
-	 *      $oComputer->SetHolidaysOql($sHolidaysOql);
-	 *  }
-	 *  $iTimeSpentBB = $oComputer->GetOpenDuration($oTicket, $oStartDate, $oEndDate);
 	 */
-
-	public static function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate, $sCoverageOql = '', $sHolidaysOql = '')
+	public function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
 			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
 		}
 
-		$oCoverageSet = static::GetCoverageSet($oTicket, $sCoverageOql);
-		$oHolidaysSet = static::GetHolidaysSet($oTicket, $sHolidaysOql);
+		$oCoverageSet = $this->GetCoverageSet($oTicket,);
+		$oHolidaysSet = $this->GetHolidaysSet($oTicket);
 
 		$oCoverage = null;
 		switch ($oCoverageSet->Count())
@@ -222,13 +198,15 @@ class EnhancedSLAComputation
 					WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_INFO, 'No coverage window');
 				}
 				// No coverage window: 24x7 computation.. what about holidays ??
-				$iDuration = abs($oEndDate->format('U') - $oStartDate->format('U'));
+				$sDefaultWorkingtimeClass = MetaModel::GetDefaultWorkingTime();
+				$oWorkingTime = new $sDefaultWorkingtimeClass();
+				$iDuration = $oWorkingTime->GetOpenDuration($oTicket, $oStartDate, $oEndDate);
 				break;
 
 			case 1:
 				/** @var \CoverageWindow $oCoverage */
 				$oCoverage = $oCoverageSet->Fetch();
-				$iDuration = static::GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate);
+				$iDuration = self::GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate);
 				break;
 
 			default:
@@ -242,7 +220,7 @@ class EnhancedSLAComputation
 				/** @var \CoverageWindow $oCoverage */
 				while ($oCoverage = $oCoverageSet->Fetch())
 				{
-					$iTmpDuration = static::GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate);
+					$iTmpDuration = self::GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate);
 					// Retain the longer duration
 					if (($iDuration == null) || ($iTmpDuration > $iDuration))
 					{
@@ -333,4 +311,10 @@ class EnhancedSLAComputation
 		$iDuration = $oEnd->format('U') - $oStart->format('U');
 		echo "<p>Interval: [ ".$oStart->format('Y-m-d H:i:s (D - w)')." ; ".$oEnd->format('Y-m-d H:i:s')." ], duration  $iDuration s</p>";
 	}
+
+	public static function GetDescription()
+	{
+		return 'Enhanced SLA Computation: Open hours + Holidays';
+	}
 }
+

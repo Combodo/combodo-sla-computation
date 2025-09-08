@@ -36,6 +36,7 @@ SetupWebPage::AddModule(
 		//
 		'datamodel' => array(
 			'model.combodo-sla-computation.php',
+			'src/Model/CoverageBasedWorkingTimeComputer.php',
 			'main.combodo-sla-computation.php'
 		),
 		'webservice' => array(
