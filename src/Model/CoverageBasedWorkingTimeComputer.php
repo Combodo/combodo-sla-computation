@@ -244,7 +244,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	 *
 	 * @return DateTime The date/time for the deadline
 	 */
-	public static function GetDeadlineFromCoverage(CoverageWindow $oCoverage, DBObjectSet $oHolidaysSet, $iDuration, DateTime $oStartDate)
+	public function GetDeadlineFromCoverage(CoverageWindow $oCoverage, DBObjectSet $oHolidaysSet, $iDuration, DateTime $oStartDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
@@ -276,7 +276,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	 *
 	 * @return integer The duration (number of seconds) of open hours elapsed between the two dates
 	 */
-	public static function GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate)
+	public function GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
@@ -290,19 +290,6 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 		else
 		{
 			return $oCoverage->GetOpenDuration($oHolidaysSet, $oStartDate, $oEndDate);
-		}
-	}
-
-	public static function IsInsideCoverage($oCurDate, $oCoverage, $oHolidaysSet = null)
-	{
-		if (is_null($oCoverage))
-		{
-			// 24x7
-			return true;
-		}
-		else
-		{
-			return $oCoverage->IsInsideCoverage($oCurDate, $oHolidaysSet);
 		}
 	}
 

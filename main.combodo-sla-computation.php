@@ -34,6 +34,7 @@ class EnhancedSLAComputation
 	 *
 	 * @return string
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 */
 	protected static function GetCoverageOql($oTicket)
 	{
@@ -47,6 +48,7 @@ class EnhancedSLAComputation
 	 * @return \DBObjectSet
 	 * @throws \OQLException
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 */
 	protected static function GetCoverageSet($oTicket, $sOql)
 	{
@@ -64,6 +66,7 @@ class EnhancedSLAComputation
 	 *
 	 * @return string
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 */
 	protected static function GetHolidaysOql($oTicket)
 	{
@@ -77,6 +80,7 @@ class EnhancedSLAComputation
 	 * @return \DBObjectSet
 	 * @throws \OQLException
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 */
 	protected static function GetHolidaysSet($oTicket, $sOql)
 	{
@@ -104,6 +108,7 @@ class EnhancedSLAComputation
 	 * @throws \MySQLException
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 *
 	 *  replace with CoverageBasedWorkingTimeComputer::GetDeadline() :
 	 * * example:
@@ -121,54 +126,14 @@ class EnhancedSLAComputation
 	 */
 	public static function GetDeadline($oTicket, $iDuration, DateTime $oStartDate, $sCoverageOql = '', $sHolidaysOql = '')
 	{
-		if (class_exists('WorkingTimeRecorder'))
-		{
-			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
-		}
-
-		$oCoverageSet = static::GetCoverageSet($oTicket, $sCoverageOql);
-		$oHolidaysSet = static::GetHolidaysSet($oTicket, $sHolidaysOql);
-
-		$oCoverage = null;
-		switch ($oCoverageSet->Count())
-		{
-			case 0:
-				if (class_exists('WorkingTimeRecorder'))
-				{
-					WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_INFO, 'No coverage window');
-				}
-				// No coverage window: 24x7 computation
-				$oDeadline = clone $oStartDate;
-				$oDeadline->modify($iDuration.' seconds');
-				break;
-
-			case 1:
-				/** @var \CoverageWindow $oCoverage */
-				$oCoverage = $oCoverageSet->Fetch();
-				$oDeadline = static::GetDeadlineFromCoverage($oCoverage, $oHolidaysSet, $iDuration, $oStartDate);
-				break;
-
-			default:
-				if (class_exists('WorkingTimeRecorder'))
-				{
-					WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_INFO,
-						'Several coverage windows: use the one that gives the stricter deadline');
-				}
-				$oDeadline = null;
-				// Several coverage windows found, use the one that gives the stricter deadline
-				/** @var \CoverageWindow $oCoverage */
-				while ($oCoverage = $oCoverageSet->Fetch())
-				{
-					$oTmpDeadline = static::GetDeadlineFromCoverage($oCoverage, $oHolidaysSet, $iDuration, $oStartDate);
-					// Retain the nearer deadline
-					// According to the PHP documentation, the plain comparison operator between DateTime objects
-					// (i.e $oTmpDeadline < $oDeadline) is only implemented in PHP 5.2.2
-					if (($oDeadline == null) || ($oTmpDeadline->format('U') < $oDeadline->format('U')))
-					{
-						$oDeadline = $oTmpDeadline;
-					}
-				}
-		}
+		$oComputer = new CoverageBasedWorkingTimeComputer();
+		 if (utils::IsNotNullOrEmptyString($sCoverageOql)) {
+		     $oComputer->SetCoverageOql($sCoverageOql);
+		 }
+		 if (utils::IsNotNullOrEmptyString($sHolidaysOql)) {
+		      $oComputer->SetHolidaysOql($sHolidaysOql);
+		 }
+		$oDeadline = $oComputer->GetDeadline($oTicket, $iDuration, $oStartDate);
 
 		return $oDeadline;
 	}
@@ -187,6 +152,7 @@ class EnhancedSLAComputation
 	 * @throws \MySQLException
 	 * @throws \MySQLHasGoneAwayException
 	 * @throws \OQLException
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 *
 	 *  replace with CoverageBasedWorkingTimeComputer::GetOpenDuration() :
 	 * example:
@@ -205,51 +171,14 @@ class EnhancedSLAComputation
 
 	public static function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate, $sCoverageOql = '', $sHolidaysOql = '')
 	{
-		if (class_exists('WorkingTimeRecorder'))
-		{
-			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
+		$oComputer = new CoverageBasedWorkingTimeComputer();
+		if (utils::IsNotNullOrEmptyString($sCoverageOql)) {
+		     $oComputer->SetCoverageOql($sCoverageOql);
 		}
-
-		$oCoverageSet = static::GetCoverageSet($oTicket, $sCoverageOql);
-		$oHolidaysSet = static::GetHolidaysSet($oTicket, $sHolidaysOql);
-
-		$oCoverage = null;
-		switch ($oCoverageSet->Count())
-		{
-			case 0:
-				if (class_exists('WorkingTimeRecorder'))
-				{
-					WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_INFO, 'No coverage window');
-				}
-				// No coverage window: 24x7 computation.. what about holidays ??
-				$iDuration = abs($oEndDate->format('U') - $oStartDate->format('U'));
-				break;
-
-			case 1:
-				/** @var \CoverageWindow $oCoverage */
-				$oCoverage = $oCoverageSet->Fetch();
-				$iDuration = static::GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate);
-				break;
-
-			default:
-				if (class_exists('WorkingTimeRecorder'))
-				{
-					WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_INFO,
-						'Several coverage windows: use the one that gives the stricter deadline, thus the longer elapsed duration');
-				}
-				$iDuration = null;
-				// Several coverage windows found, use the one that gives the stricter deadline, thus the longer elasped duration
-				/** @var \CoverageWindow $oCoverage */
-				while ($oCoverage = $oCoverageSet->Fetch())
-				{
-					$iTmpDuration = static::GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate);
-					// Retain the longer duration
-					if (($iDuration == null) || ($iTmpDuration > $iDuration))
-					{
-						$iDuration = $iTmpDuration;
-					}
-				}
+		if (utils::IsNotNullOrEmptyString($sHolidaysOql)) {
+		      $oComputer->SetHolidaysOql($sHolidaysOql);
 		}
+		$iDuration = $oComputer->GetOpenDuration($oTicket, $oStartDate, $oEndDate);
 
 		return $iDuration;
 	}
@@ -265,25 +194,12 @@ class EnhancedSLAComputation
 	 * @param DateTime $oStartDate The starting point for the computation
 	 *
 	 * @return DateTime The date/time for the deadline
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 */
 	public static function GetDeadlineFromCoverage(CoverageWindow $oCoverage, DBObjectSet $oHolidaysSet, $iDuration, DateTime $oStartDate)
 	{
-		if (class_exists('WorkingTimeRecorder'))
-		{
-			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
-		}
-		if (is_null($oCoverage))
-		{
-			// 24x7
-			$oDeadline = clone $oStartDate;
-			$oDeadline->modify($iDuration.' seconds');
-		}
-		else
-		{
-			$oDeadline = $oCoverage->GetDeadline($oHolidaysSet, $iDuration, $oStartDate);
-		}
-
-		return $oDeadline;
+		$oComputer = new CoverageBasedWorkingTimeComputer();
+		return $oComputer->GetDeadlineFromCoverage($oCoverage, $oHolidaysSet, $iDuration, $oStartDate);
 	}
 
 	/**
@@ -297,24 +213,17 @@ class EnhancedSLAComputation
 	 * @param DateTime $oEndDate The ending point for the computation (default = now)
 	 *
 	 * @return integer The duration (number of seconds) of open hours elapsed between the two dates
+	 * @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
 	 */
 	public static function GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate)
 	{
-		if (class_exists('WorkingTimeRecorder'))
-		{
-			WorkingTimeRecorder::Trace(WorkingTimeRecorder::TRACE_DEBUG, __class__.'::'.__function__);
-		}
-		if (is_null($oCoverage))
-		{
-			// 24x7
-			return abs($oEndDate->format('U') - $oStartDate->format('U'));
-		}
-		else
-		{
-			return $oCoverage->GetOpenDuration($oHolidaysSet, $oStartDate, $oEndDate);
-		}
+		$oComputer = new CoverageBasedWorkingTimeComputer();
+		return $oComputer->GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate);
 	}
 
+	/*
+	 * @deprecated 2.5.0 for iTop 3.3.0 use $oCoverage->IsInsideCoverage instead
+	*/
 	public static function IsInsideCoverage($oCurDate, $oCoverage, $oHolidaysSet = null)
 	{
 		if (is_null($oCoverage))
@@ -327,7 +236,9 @@ class EnhancedSLAComputation
 			return $oCoverage->IsInsideCoverage($oCurDate, $oHolidaysSet);
 		}
 	}
-
+	/*
+	* @deprecated 2.5.0 for iTop 3.3.0 use CoverageBasedWorkingTimeComputer instead
+	 */
 	protected static function DumpInterval($oStart, $oEnd)
 	{
 		$iDuration = $oEnd->format('U') - $oStart->format('U');
