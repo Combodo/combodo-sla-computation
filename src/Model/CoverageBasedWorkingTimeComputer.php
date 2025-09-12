@@ -1,6 +1,8 @@
 <?php
-// Copyright (C) 2010-2025 Combodo SARL
-//
+/*
+ * @copyright   Copyright (C) 2010-2025 Combodo SAS
+ * @license     http://opensource.org/licenses/AGPL-3.0
+ */
 
 /**
  * Extension to the SLA computation mechanism
@@ -11,22 +13,22 @@
  */
 class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 {
-	private $sCoverageOql;
-	private $sHolidaysOql;
+	private string $sCoverageOql;
+	private string $sHolidaysOql;
 
-	/**
-	 * Called when the module is loaded, used for one time initialization (if needed)
-	 */
-	public function Init()
-	{
-	}
 	function __construct()
 	{
 		$this->sCoverageOql = MetaModel::GetModuleSetting('combodo-sla-computation', 'coverage_oql', '');
 		$this->sHolidaysOql = MetaModel::GetModuleSetting('combodo-sla-computation', 'holidays_oql', '');
 	}
+
+	public static function GetDescription()
+	{
+		return 'Enhanced SLA Computation: Open hours + Holidays';
+	}
+
 	/**
-	 * @param Ticket $oTicket The ticket for which to compute the deadline
+	 * @param DBObject $oTicket The ticket for which to compute the deadline
 	 *
 	 * @return string
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
@@ -42,7 +44,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	}
 
 	/**
-	 * @param Ticket $oTicket The ticket for which to compute the deadline
+	 * @param DBObject $oTicket The ticket for which to compute the deadline
 	 * @param string $sOql default OQL query
 	 *
 	 * @return \DBObjectSet
@@ -61,7 +63,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	}
 
 	/**
-	 * @param Ticket $oTicket The ticket for which to compute the deadline
+	 * @param \DBObject $oTicket The ticket for which to compute the deadline
 	 *
 	 * @return string
 	 * @since 2.3.0 N°2042 Deadline / OpenDuration extensibility
@@ -76,7 +78,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	}
 
 	/**
-	 * @param Ticket $oTicket The ticket for which to compute the deadline
+	 * @param DBObject $oTicket The ticket for which to compute the deadline
 	 * @param string $sOql default OQL query
 	 *
 	 * @return \DBObjectSet
@@ -95,7 +97,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	}
 
 	/**
-	 * @param Ticket $oTicket The ticket for which to compute the deadline
+	 * @param DBObject $oTicket The ticket for which to compute the deadline
 	 * @param integer $iDuration The duration (in seconds) in the future
 	 * @param DateTime $oStartDate The starting point for the computation
 	 * @param string $sCoverageOql if provided, use this OQL
@@ -165,7 +167,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	}
 
 	/**
-	 * @param Ticket $oTicket The ticket for which to compute the duration
+	 * @param DBObject $oTicket The ticket for which to compute the duration
 	 * @param DateTime $oStartDate The starting point for the computation (default = now)
 	 * @param DateTime $oEndDate The ending point for the computation (default = now)
 	 * @param string $sCoverageOql if provided, use this OQL
@@ -244,7 +246,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	 *
 	 * @return DateTime The date/time for the deadline
 	 */
-	public function GetDeadlineFromCoverage(CoverageWindow $oCoverage, DBObjectSet $oHolidaysSet, $iDuration, DateTime $oStartDate)
+	public function GetDeadlineFromCoverage(CoverageWindow $oCoverage, DBObjectSet $oHolidaysSet, int $iDuration, DateTime $oStartDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
@@ -276,7 +278,7 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 	 *
 	 * @return integer The duration (number of seconds) of open hours elapsed between the two dates
 	 */
-	public function GetOpenDurationFromCoverage($oCoverage, $oHolidaysSet, $oStartDate, $oEndDate)
+	public function GetOpenDurationFromCoverage(CoverageWindow $oCoverage, DBObjectSet $oHolidaysSet, DateTime $oStartDate, DateTime $oEndDate)
 	{
 		if (class_exists('WorkingTimeRecorder'))
 		{
@@ -299,9 +301,5 @@ class CoverageBasedWorkingTimeComputer implements iWorkingTimeComputer
 		echo "<p>Interval: [ ".$oStart->format('Y-m-d H:i:s (D - w)')." ; ".$oEnd->format('Y-m-d H:i:s')." ], duration  $iDuration s</p>";
 	}
 
-	public static function GetDescription()
-	{
-		return 'Enhanced SLA Computation: Open hours + Holidays';
-	}
 }
 
