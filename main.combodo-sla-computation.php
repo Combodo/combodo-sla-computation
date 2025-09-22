@@ -41,6 +41,7 @@ final class EnhancedSLAComputation
 	 */
 	public static function GetDeadline($oTicket, $iDuration, DateTime $oStartDate, $sCoverageOql = '', $sHolidaysOql = '')
 	{
+		DeprecatedCallsLog::NotifyDeprecatedPhpMethod('use CoverageBasedWorkingTimeComputer::GetDeadline');
 		$oComputer = new CoverageBasedWorkingTimeComputer();
 		 if (utils::IsNotNullOrEmptyString($sCoverageOql)) {
 		     $oComputer->SetCoverageOql($sCoverageOql);
@@ -71,6 +72,7 @@ final class EnhancedSLAComputation
 	 */
 	public static function GetOpenDuration($oTicket, DateTime $oStartDate, DateTime $oEndDate, $sCoverageOql = '', $sHolidaysOql = '')
 	{
+		DeprecatedCallsLog::NotifyDeprecatedPhpMethod('use CoverageBasedWorkingTimeComputer::GetOpenDuration');
 		$oComputer = new CoverageBasedWorkingTimeComputer();
 		if (utils::IsNotNullOrEmptyString($sCoverageOql)) {
 		     $oComputer->SetCoverageOql($sCoverageOql);
