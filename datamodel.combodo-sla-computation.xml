@@ -411,6 +411,11 @@
         </default_search>
       </presentation>
     </class>
+    <class id="Ticket" _delta="must_exist">
+      <properties>
+        <working_time _delta="define">CoverageBasedWorkingTimeComputer</working_time>
+      </properties>
+    </class>
   </classes>
   <menus>
     <menu id="CoverageWindows" xsi:type="OQLMenuNode" _delta="define">
