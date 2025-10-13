@@ -238,9 +238,9 @@ $(function()
 				$('#dlg_start_time').prop('disabled', true);
 				$('#dlg_end_time').prop('disabled', true);
 			}
-			$('#dlg_whole_day').bind('click change', function() { me._wholeDayClicked(); });
-			$('#dlg_start_time').bind('change keyup', function() { me._validateTime($(this), false); });
-			$('#dlg_end_time').bind('change keyup', function() { me._validateTime($(this), true); });
+			$('#dlg_whole_day').on('click change', function() { me._wholeDayClicked(); });
+			$('#dlg_start_time').on('change keyup', function() { me._validateTime($(this), false); });
+			$('#dlg_end_time').on('change keyup', function() { me._validateTime($(this), true); });
 		},
 		_wholeDayClicked: function()
 		{
