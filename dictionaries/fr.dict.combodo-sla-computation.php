@@ -52,6 +52,8 @@ Dict::Add('FR FR', 'French', 'Français', [
 	'Coverage:EndTime' => 'Heures de fin',
 	'Coverage:StartTime' => 'Heures de début',
 	'CoverageWindow:Error:MissingIntervalList' => 'Les Heures Ouvrées doivent être spécifiées',
+    'Menu:Calendars' => 'Calendriers',
+    'Menu:Calendars+' => 'Gestion des périodes travaillées.',
 	'Menu:CoverageWindows' => 'Heures Ouvrées',
 	'Menu:CoverageWindows+' => 'Toutes les Heures Ouvrées',
 	'Menu:HolidayCalendars' => 'Calendriers des Jours Fériés',
