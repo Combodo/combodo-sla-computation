@@ -16,7 +16,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
-			'itop-service-mgmt/3.3.0||itop-service-mgmt-provider/3.3.0', // Needed to place new menu entries
+			'itop-service-mgmt/3.2.0||itop-service-mgmt-provider/3.2.0', // Needed to place new menu entries
 		),
 		'mandatory' => true,
 		'visible' => false,
@@ -26,7 +26,7 @@ SetupWebPage::AddModule(
 		//
 		'datamodel' => array(
 			'model.combodo-sla-computation.php',
-			'src/Model/CoverageBasedWorkingTimeComputer.php',
+			'compatibilitybridge.php',
 			'main.combodo-sla-computation.php'
 		),
 		'webservice' => array(
