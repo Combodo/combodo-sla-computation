@@ -10,5 +10,5 @@
 
 // iTop 3.3 and newer
 if (version_compare(ITOP_DESIGN_LATEST_VERSION, 3.3, '>=')) {
-    require_once __DIR__ .'src/Model/CoverageBasedWorkingTimeComputer.php';
+    require_once __DIR__ .'/src/Model/CoverageBasedWorkingTimeComputer.php';
 }
