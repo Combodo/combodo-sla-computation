@@ -26,8 +26,6 @@
 //
 
 Dict::Add('EN US', 'English', 'English', array(
-    'Menu:Calendars' => 'Calendars',
-    'Menu:Calendars+' => 'Defining working periods.',
 	'Menu:CoverageWindows' => 'Coverage Windows',
 	'Menu:CoverageWindows+' => 'All Coverage Windows',
 	'Class:CoverageWindow' => 'Coverage Window',
