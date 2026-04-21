@@ -418,21 +418,25 @@
     </class>
   </classes>
   <menus>
-    <menu id="CoverageWindows" xsi:type="OQLMenuNode" _delta="define">
+    <menu id="Calendars" xsi:type="TemplateMenuNode" _delta="define">
       <rank>10</rank>
       <parent>ServiceManagement</parent>
+    </menu>
+    <menu id="CoverageWindows" xsi:type="OQLMenuNode" _delta="define">
+      <rank>10</rank>
+      <parent>Calendars</parent>
       <oql>SELECT CoverageWindow</oql>
       <do_search>1</do_search>
     </menu>
     <menu id="HolidayCalendars" xsi:type="OQLMenuNode" _delta="define">
       <rank>11</rank>
-      <parent>ServiceManagement</parent>
+      <parent>Calendars</parent>
       <oql>SELECT HolidayCalendar</oql>
       <do_search>1</do_search>
     </menu>
     <menu id="Holidays" xsi:type="OQLMenuNode" _delta="define">
       <rank>12</rank>
-      <parent>ServiceManagement</parent>
+      <parent>Calendars</parent>
       <oql>SELECT Holiday</oql>
       <do_search>1</do_search>
     </menu>
