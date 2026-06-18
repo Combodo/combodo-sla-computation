@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Set>
+    <CoverageWindow alias="CoverageWindow" id="3">
+        <name>5d/7 9am-12pm/2pm-6pm</name>
+        <description>Monday to friday from 9 am to 12 pm and from 2 pm to 6 pm</description>
+    </CoverageWindow>
+    <CoverageWindow alias="CoverageWindow" id="1">
+        <name>5d/7 9am-6pm</name>
+        <description>Monday to friday from 9 am to 6 pm</description>
+    </CoverageWindow>
+    <CoverageWindow alias="CoverageWindow" id="2">
+        <name>7d/7 24h/24</name>
+        <description>Full coverage</description>
+    </CoverageWindow>
+</Set>

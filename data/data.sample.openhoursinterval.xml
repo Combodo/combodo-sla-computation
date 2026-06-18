@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Set>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="21">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>friday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>12:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="22">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>friday</weekday>
+        <start_time>14:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="13">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>monday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>12:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="14">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>monday</weekday>
+        <start_time>14:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="19">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>thursday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>12:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="20">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>thursday</weekday>
+        <start_time>14:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="15">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>tuesday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>12:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="16">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>tuesday</weekday>
+        <start_time>14:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="17">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>wednesday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>12:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="18">
+        <coverage_window_id>3</coverage_window_id>
+        <weekday>wednesday</weekday>
+        <start_time>14:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="5">
+        <coverage_window_id>1</coverage_window_id>
+        <weekday>friday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="1">
+        <coverage_window_id>1</coverage_window_id>
+        <weekday>monday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="4">
+        <coverage_window_id>1</coverage_window_id>
+        <weekday>thursday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="2">
+        <coverage_window_id>1</coverage_window_id>
+        <weekday>tuesday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="3">
+        <coverage_window_id>1</coverage_window_id>
+        <weekday>wednesday</weekday>
+        <start_time>09:00</start_time>
+        <end_time>18:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="10">
+        <coverage_window_id>2</coverage_window_id>
+        <coverage_window_name>7d/7 24h/24</coverage_window_name>
+        <weekday>friday</weekday>
+        <start_time>00:00</start_time>
+        <end_time>24:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="6">
+        <coverage_window_id>2</coverage_window_id>
+        <coverage_window_name>7d/7 24h/24</coverage_window_name>
+        <weekday>monday</weekday>
+        <start_time>00:00</start_time>
+        <end_time>24:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="11">
+        <coverage_window_id>2</coverage_window_id>
+        <coverage_window_name>7d/7 24h/24</coverage_window_name>
+        <weekday>saturday</weekday>
+        <start_time>00:00</start_time>
+        <end_time>24:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="12">
+        <coverage_window_id>2</coverage_window_id>
+        <coverage_window_name>7d/7 24h/24</coverage_window_name>
+        <weekday>sunday</weekday>
+        <start_time>00:00</start_time>
+        <end_time>24:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="9">
+        <coverage_window_id>2</coverage_window_id>
+        <coverage_window_name>7d/7 24h/24</coverage_window_name>
+        <weekday>thursday</weekday>
+        <start_time>00:00</start_time>
+        <end_time>24:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="7">
+        <coverage_window_id>2</coverage_window_id>
+        <coverage_window_name>7d/7 24h/24</coverage_window_name>
+        <weekday>tuesday</weekday>
+        <start_time>00:00</start_time>
+        <end_time>24:00</end_time>
+    </CoverageWindowInterval>
+    <CoverageWindowInterval alias="CoverageWindowInterval" id="8">
+        <coverage_window_id>2</coverage_window_id>
+        <coverage_window_name>7d/7 24h/24</coverage_window_name>
+        <weekday>wednesday</weekday>
+        <start_time>00:00</start_time>
+        <end_time>24:00</end_time>
+    </CoverageWindowInterval>
+</Set>

@@ -1,4 +1,5 @@
 <?php
+
 /*
 * @copyright Copyright (C) 2010-2025 Combodo SARL
 * @license http://opensource.org/licenses/AGPL-3.0
@@ -7,7 +8,7 @@
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
 	'combodo-sla-computation/2.5.0-dev',
-	array(
+	[
 		// Identification
 		//
 		'label' => 'Enhanced SLA Computation',
@@ -15,29 +16,32 @@ SetupWebPage::AddModule(
 
 		// Setup
 		//
-		'dependencies' => array(
+		'dependencies' => [
 			'itop-service-mgmt/3.2.0||itop-service-mgmt-provider/3.2.0', // Needed to place new menu entries
-		),
+		],
 		'mandatory' => true,
 		'visible' => false,
 		'installer' => 'CoverageWindowInstaller',
 
 		// Components
 		//
-		'datamodel' => array(
+		'datamodel' => [
 			'model.combodo-sla-computation.php',
 			'compatibilitybridge.php',
-			'main.combodo-sla-computation.php'
-		),
-		'webservice' => array(
+			'main.combodo-sla-computation.php',
+		],
+		'webservice' => [
 
-		),
-		'data.struct' => array(
+		],
+		'data.struct' => [
 			// add your 'structure' definition XML files here,
-		),
-		'data.sample' => array(
-			// add your sample data XML files here,
-		),
+		],
+		'data.sample' => [
+			'data/data.sample.coveragewindows.en_us.xml',
+			'data/data.sample.customercontractsservice.xml',
+			'data/data.sample.openhoursinterval.xml',
+
+		],
 
 		// Documentation
 		//
@@ -46,15 +50,14 @@ SetupWebPage::AddModule(
 
 		// Default settings
 		//
-		'settings' => array(
+		'settings' => [
 			'coverage_oql' => 'SELECT CoverageWindow', 	// How to retrive the Coverage object for a given ticket (:this)
 			'holidays_oql' => 'SELECT Holiday', 	// How to retrive the list of Holidays for a given ticket (:this)
-		),
-	)
+		],
+	]
 );
 
-if (!class_exists('CoverageWindowInstaller'))
-{
+if (!class_exists('CoverageWindowInstaller')) {
 	// Module installation handler
 	//
 	class CoverageWindowInstaller extends ModuleInstallerAPI
@@ -84,8 +87,7 @@ if (!class_exists('CoverageWindowInstaller'))
 		 */
 		public static function AfterDatabaseCreation(Config $oConfiguration, $sPreviousVersion, $sCurrentVersion)
 		{
-			if ($sPreviousVersion != '')
-			{
+			if ($sPreviousVersion != '') {
 				// Convert the previous format where all data were stored as fields: monday_start, monday_end, tuesday_start...
 				// directly inside the CoverageWindow class, to the new format where the open hours are stored as "CoverageWindowInterval" objects
 
@@ -95,44 +97,35 @@ if (!class_exists('CoverageWindowInstaller'))
 				$aFields = CMDBSource::QueryToArray("SHOW COLUMNS FROM `$sTableName`");
 				// Note: without backticks, you get an error with some table names (e.g. "group")
 				$bOldColumns = false;
-				foreach ($aFields as $aFieldData)
-				{
-					if ($aFieldData["Field"] == 'monday_start')
-					{
+				foreach ($aFields as $aFieldData) {
+					if ($aFieldData["Field"] == 'monday_start') {
 						$bOldColumns = true;
 						break;
 					}
 				}
 
-				if ($bOldColumns)
-				{
+				if ($bOldColumns) {
 					$aCoverageWindows = CMDBSource::QueryToArray("SELECT * FROM `$sTableName`");
 					$iCount = 0;
 
-					foreach($aCoverageWindows as $aCW)
-					{
+					foreach ($aCoverageWindows as $aCW) {
 						$iId = $aCW['id'];
 
-						foreach(array('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday') as $sWeekday)
-						{
-							if ($sWeekday == 'wednesday')
-							{
+						foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $sWeekday) {
+							if ($sWeekday == 'wednesday') {
 								$sStartTime = $aCW['wendnesday_start']; // Arghhh!!!
-							}
-							else
-							{
+							} else {
 								$sStartTime = $aCW[$sWeekday.'_start'];
 							}
 							$sEndTime = $aCW[$sWeekday.'_end'];
 
-							if ($sStartTime != $sEndTime)
-							{
+							if ($sStartTime != $sEndTime) {
 								// Non-empty interval
 								$oInterval = new CoverageWindowInterval();
 								$oInterval->Set('coverage_window_id', $iId);
 								$oInterval->Set('weekday', $sWeekday);
 								$oInterval->Set('start_time', self::FromDecimalIfNeeded($sStartTime));
-								$oInterval->Set('end_time',  self::FromDecimalIfNeeded($sEndTime));
+								$oInterval->Set('end_time', self::FromDecimalIfNeeded($sEndTime));
 								$oInterval->DBInsert();
 							}
 						}
@@ -157,26 +150,19 @@ if (!class_exists('CoverageWindowInstaller'))
 		 */
 		protected static function FromDecimalIfNeeded($sValue)
 		{
-			if (!preg_match('/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$|^24:00$/', $sValue))
-			{
+			if (!preg_match('/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$|^24:00$/', $sValue)) {
 				// The format does not match the new convention
 				// => Convert the decimal value into "hh:mm"
 				$fTime = (float) $sValue;
-				if ($sValue != '')
-				{
+				if ($sValue != '') {
 					$iHour = floor($fTime);
 					$iMin = floor(60 * ($fTime - $iHour));
-					if ($iHour > 23)
-					{
+					if ($iHour > 23) {
 						$sValue = '24:00';
-					}
-					else
-					{
+					} else {
 						$sValue = sprintf('%02d:%02d', $iHour, $iMin);
 					}
-				}
-				else
-				{
+				} else {
 					$sValue = '00:00';
 				}
 			}
