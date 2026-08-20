@@ -63,4 +63,6 @@ Dict::Add('DE DE', 'German', 'Deutsch', [
 	'WorkingHoursInterval:RemoveIntervalButton' => 'Zeitinterval löschen',
 	'WorkingHoursInterval:StartTime' => 'Startzeit:',
 	'WorkingHoursInterval:WholeDay' => 'Ganztags:',
+	'Menu:Calendars' => 'Kalender',
+	'Menu:Calendars+' => 'Definition der Arbeitszeiten.',
 ]);
